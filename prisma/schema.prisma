@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+enum Role {
+  CUSTOMER
+  MERCHANT
+  ADMIN
+}
+
+enum StoreStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  stores       Store[]
+}
+
+model Store {
+  id          String      @id @default(cuid())
+  ownerId     String
+  owner       User        @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  name        String
+  slug        String      @unique
+  description String?     @db.Text
+  logoUrl     String?     @db.Text
+  bannerUrl   String?     @db.Text
+  status      StoreStatus @default(DRAFT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([ownerId])
+  @@index([status, createdAt, id])
+}
