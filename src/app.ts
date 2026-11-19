@@ -1,5 +1,6 @@
 import express from 'express';
 import { storeRouter } from './modules/stores/store.routes.js';
+import { authRouter } from './modules/auth/auth.routes.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { notFound } from './middleware/not-found.middleware.js';
 import { apiResponse } from './utils/api-response.js';
@@ -19,5 +20,6 @@ app.get('/health', (_req, res) => {
   res.status(200).json(apiResponse('Server is running', { status: 'ok' }));
 });
 app.use('/api/v1/stores', storeRouter);
+app.use('/api/v1/auth', authRouter);
 app.use(notFound);
 app.use(errorHandler);

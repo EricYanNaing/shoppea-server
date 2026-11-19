@@ -59,8 +59,13 @@ Edit `.env` with your own development connection. The example contains placehold
 | PORT | HTTP port, integer 1–65535 | 3000 |
 | NODE_ENV | development, test, production | development |
 | DATABASE_URL | mysql://USER:PASSWORD@HOST:3306/DATABASE | required |
+| JWT_SECRET | Private random JWT signing secret, at least 32 characters | required |
 
 Percent-encode special characters in usernames/passwords (`@` becomes `%40`). For TiDB Cloud, select the `test` database and copy the Prisma connection URL into `.env`, keeping `?sslaccept=strict`. Remote connections require this option. The runtime adapter enables TLS and verifies the server certificate; the Prisma CLI reads the same option from the URL. Local loopback connections may omit TLS. Unknown or duplicate options and URL fragments are rejected rather than silently discarded. The service validates configuration at startup; Prisma CLI loads `.env` separately. Client generation and schema validation do not require a live MySQL connection. Migration commands do.
+
+## JWT signing configuration
+
+Auth services now use `jsonwebtoken` with HS256 and a one-hour token expiration. Generate a private secret with `openssl rand -hex 32`, then set `JWT_SECRET` in your local `.env` and Render Environment settings before deploying. Do not put the secret in `.env.example` or commit it. Environment validation rejects a missing/short secret. Login returns `{ user, jwtToken }`; passwordHash is used internally for bcrypt and omitted from the result. Registration also selects only safe user fields. These service changes do not wire up auth routes or implement token verification/refresh/logout.
 
 ## MySQL and migrations
 

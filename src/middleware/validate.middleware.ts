@@ -2,7 +2,7 @@ import type { RequestHandler } from 'express';
 import type { z } from 'zod';
 import { AppError } from '../utils/app-error.js';
 
-export function validate(schema: z.ZodType, source: 'query' | 'params'): RequestHandler {
+export function validate(schema: z.ZodType, source: 'body' | 'query' | 'params'): RequestHandler {
   return (req, res, next) => {
     const result = schema.safeParse(req[source]);
     if (!result.success) {
