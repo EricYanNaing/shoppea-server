@@ -12,7 +12,7 @@ Read alongside the source. The aim is to know where a change belongs before addi
 
 **Interactions and request behavior:** `server.ts` validates configuration and connects before listening. Services import the shared client. Once a request arrives, the pool supplies a connection for the query; the handler never constructs credentials.
 
-**Mistakes to avoid:** Committing `.env`, printing database errors with secrets, opening a new client per request, assuming a TypeScript type validates runtime strings, or silently dropping URL connection options. This implementation explicitly rejects URL query options; secure remote deployment needs explicit TLS configuration in the adapter.
+**Mistakes to avoid:** Committing `.env`, printing database errors with secrets, opening a new client per request, assuming a TypeScript type validates runtime strings, or silently dropping URL connection options. For a remote database, the URL must contain `?sslaccept=strict`. Prisma CLI interprets that option itself, while `database.ts` explicitly enables TLS with certificate verification in the runtime adapter. Only local loopback connections may omit TLS; unsupported or duplicate URL options are rejected.
 
 **Before the next module:** Understand environment validation versus request validation, compile time versus runtime, and that a generated client does not create database tables.
 

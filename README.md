@@ -25,7 +25,7 @@ shoppea-server/
 │   ├── utils/{api-response,app-error}.ts
 │   ├── app.ts
 │   └── server.ts
-├── tests/{setup,stores.test,users.test}.ts
+├── tests/{setup,stores.test,users.test,database-config.test}.ts
 ├── .env.example
 ├── .gitignore
 ├── .nvmrc
@@ -60,7 +60,7 @@ Edit `.env` with your own development connection. The example contains placehold
 | NODE_ENV | development, test, production | development |
 | DATABASE_URL | mysql://USER:PASSWORD@HOST:3306/DATABASE | required |
 
-Percent-encode special characters in usernames/passwords (`@` becomes `%40`). The connection parser intentionally rejects query parameters and fragments rather than silently discarding connection options. This local development setup uses TCP; remote production databases requiring TLS need explicit TLS adapter configuration before deployment. The service validates configuration at startup; Prisma CLI loads `.env` separately. Client generation and schema validation do not require a live MySQL connection. Migration commands do.
+Percent-encode special characters in usernames/passwords (`@` becomes `%40`). For TiDB Cloud, select the `test` database and copy the Prisma connection URL into `.env`, keeping `?sslaccept=strict`. Remote connections require this option. The runtime adapter enables TLS and verifies the server certificate; the Prisma CLI reads the same option from the URL. Local loopback connections may omit TLS. Unknown or duplicate options and URL fragments are rejected rather than silently discarded. The service validates configuration at startup; Prisma CLI loads `.env` separately. Client generation and schema validation do not require a live MySQL connection. Migration commands do.
 
 ## MySQL and migrations
 
@@ -169,7 +169,7 @@ Mocks verify our query construction and HTTP behavior. They cannot prove MySQL c
 - `npm run prisma:generate`: passed (Prisma 7.10.1).
 - `npm run prisma:validate`: passed.
 - `npm run typecheck`: passed.
-- `npm test`: 39 tests passed across 2 files. Supertest required local listener access outside the restricted execution environment; database operations stayed mocked.
+- `npm test`: 46 tests passed across 3 files, including strict TLS connection configuration checks. Supertest required local listener access outside the restricted execution environment; database operations stayed mocked.
 - `npm run build`: passed.
 - `npm audit`: zero known vulnerabilities after upgrading Vitest to 4.1.12.
 - `npm ci --dry-run --ignore-scripts --no-audit`: passed against the finalized lockfile. This validates installation planning; it is not a fresh installation execution.

@@ -7,10 +7,14 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url().refine((value) => {
     try {
       const url = new URL(value);
+      const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+      const options = [...url.searchParams.entries()];
+      const strictTls = options.length === 1
+        && options[0]?.[0] === 'sslaccept' && options[0]?.[1] === 'strict';
       return url.protocol === 'mysql:' && Boolean(url.hostname && url.username && url.pathname.length > 1)
-        && !url.search && !url.hash;
+        && !url.hash && (strictTls || (local && options.length === 0));
     } catch { return false; }
-  }, 'Use mysql://user:password@host:3306/database without query parameters'),
+  }, 'Use a MySQL URL; remote databases require ?sslaccept=strict (no other URL options are supported)'),
 });
 
 const result = envSchema.safeParse(process.env);

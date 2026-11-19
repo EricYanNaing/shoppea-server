@@ -9,6 +9,10 @@ const adapter = new PrismaMariaDb({
   user: decodeURIComponent(url.username),
   password: decodeURIComponent(url.password),
   database: decodeURIComponent(url.pathname.slice(1)),
+  // Prisma CLI reads sslaccept from the URL; the runtime adapter needs explicit TLS options.
+  ...(url.searchParams.get('sslaccept') === 'strict'
+    ? { ssl: { rejectUnauthorized: true, minVersion: 'TLSv1.2' as const } }
+    : {}),
   connectionLimit: 5,
   connectTimeout: 5000,
 });
