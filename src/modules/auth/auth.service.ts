@@ -57,7 +57,19 @@ export const loginService = async (params: z.infer<typeof LoginParamsSchema>) =>
     throw new AppError(401,"INVALID_CREDENTIALS","Invalid credentials");
   }
 
-  const jwtToken = jwt.sign({ id: user.id }, env.JWT_SECRET, {
+  const updateUser = await prisma.user.update({
+    where : {id:user.id},
+    data: {
+      sessionVersion : {increment:1}
+    },
+    select: {
+      sessionVersion:true
+    }
+  })
+
+  const jwtToken = jwt.sign({ id: user.id,
+    sessionVersion : updateUser.sessionVersion
+   }, env.JWT_SECRET, {
     algorithm: 'HS256',
     expiresIn: '1h',
   });
